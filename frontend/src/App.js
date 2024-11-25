@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
@@ -8,20 +6,30 @@ import Header from './components/Header/Header';
 import Category from './components/Category/Category';
 import Footer from './components/Footer/Footer';
 import About from './components/About/About';
+import CategoryPage from './components/CategoryPage/CategoryPage';
+import Login from './components/Login/Login';
+import Register from './components/Register/Register';
 
-// Lazy load your components
 const App = () => {
   return (
-    <BrowserRouter>
-      <Suspense fallback={<div>Loading...</div>}>
-      <Header/>
-        <Routes>
-          <Route path="/" element={<><Hero/> <Category/> <About/> </>} />
-          
-        </Routes>
-        <Footer/>
-      </Suspense>
-    </BrowserRouter>
+    <div className="app-container">
+      <BrowserRouter>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Header />
+          <div className="app-content">
+            <Routes>
+              <Route path="/" element={<><Hero /><Category /><About /></>} />
+              <Route path="/login" element={<><Login/></>} />
+              <Route path="/register" element={<><Register/></>} />
+
+
+              <Route path="/categories/:categoryName" element={<CategoryPage />} />
+            </Routes>
+          </div>
+          <Footer />
+        </Suspense>
+      </BrowserRouter>
+    </div>
   );
 };
 

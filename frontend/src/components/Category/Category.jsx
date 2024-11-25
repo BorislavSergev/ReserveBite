@@ -1,43 +1,20 @@
+// src/components/Category/Category.jsx
+
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const categoriesData = [
-    {
-        name: "Italian",
-        imageUrl: "https://amazingfoodanddrink.com/wp-content/uploads/2024/05/The-Flavors-of-Italian-Street-Food_-259434423.jpg"
-    },
-    {
-        name: "Greek",
-        imageUrl: "https://kavala-online.com/wp-content/uploads/2024/08/greek-food-plate-1024x585.webp"
-    },
-    {
-        name: "Bulgaria",
-        imageUrl: "https://tripjive.com/wp-content/uploads/2024/06/Where-to-eat-traditional-Bulgarian-food-in-Sofia.jpg"
-    },
-    {
-        name: "Greek",
-        imageUrl: "https://kavala-online.com/wp-content/uploads/2024/08/greek-food-plate-1024x585.webp"
-    },
-    {
-        name: "Indian",
-        imageUrl: "https://www.tastingtable.com/img/gallery/20-delicious-indian-dishes-you-have-to-try-at-least-once/intro-1645057933.jpg"
-    },
-    {
-        name: "Italian",
-        imageUrl: "https://amazingfoodanddrink.com/wp-content/uploads/2024/05/The-Flavors-of-Italian-Street-Food_-259434423.jpg"
-    },
-    {
-        name: "Greek",
-        imageUrl: "https://kavala-online.com/wp-content/uploads/2024/08/greek-food-plate-1024x585.webp"
-    },
-    {
-        name: "Mexican",
-        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7PrURqk9v5JSOVaUKkSvFgNsqePcWfebTnQ&s"
-    },
-    // Add more categories as needed
+    { name: "Italian", imageUrl: "https://amazingfoodanddrink.com/wp-content/uploads/2024/05/The-Flavors-of-Italian-Street-Food_-259434423.jpg" },
+    { name: "Greek", imageUrl: "https://kavala-online.com/wp-content/uploads/2024/08/greek-food-plate-1024x585.webp" },
+    { name: "Bulgarian", imageUrl: "https://tripjive.com/wp-content/uploads/2024/06/Where-to-eat-traditional-Bulgarian-food-in-Sofia.jpg" },
+    { name: "Indian", imageUrl: "https://www.tastingtable.com/img/gallery/20-delicious-indian-dishes-you-have-to-try-at-least-once/intro-1645057933.jpg" },
+    { name: "Mexican", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7PrURqk9v5JSOVaUKkSvFgNsqePcWfebTnQ&s" },
 ];
 
 const Category = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="container bg-primary mx-auto py-16 px-4">
             {/* Section Header */}
@@ -63,28 +40,24 @@ const Category = () => {
                 >
                     Discover cuisines from around the world.
                 </motion.p>
-
-                
             </div>
 
             {/* Categories Grid */}
-            <div className="grid  sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-4 lg:mx-4 sm:mx-1">
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:mx-4 sm:mx-1">
                 {categoriesData.map((category) => (
                     <motion.div
                         key={category.name}
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        whileHover={{
-                            scale: 1.05,
-                            transition: { duration: 0.2 } // Faster animation on hover
-                        }}
-                        className="relative rounded-lg overflow-hidden h-80"
+                        whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+                        className="relative rounded-lg overflow-hidden h-80 cursor-pointer"
                         style={{
                             backgroundImage: `url(${category.imageUrl})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}
+                        onClick={() => navigate(`/categories/${category.name}`)}
                     >
                         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.6)] to-[rgba(0,0,0,0)]"></div>
                         <motion.h3
