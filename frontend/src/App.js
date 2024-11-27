@@ -12,6 +12,9 @@ import Register from './components/Register/Register';
 import RestaurantDetailPage from './components/RestaurantDetailPage/RestaurantDetailPage ';
 import ReservationPage from './components/ReservationPage/ReservationPage'; // Import ReservationPage
 import MenuPage from './components/MenuPage/MenuPage'; // Import MenuPage
+import Profile from './components/Profile/Profile';
+import ReservationProfile from './components/ReservationProfile/ReservationProfile'
+import CreateRestaurant from './components/CreateRestaurant/CreateRestaurant'; // Import the CreateRestaurant component
 
 const App = () => {
   return (
@@ -34,9 +37,15 @@ const App = () => {
               
               {/* Route for ReservationPage */}
               <Route path="/reservation" element={<ReservationPage />} />
+              <Route path="/profile" element={<Profile/>} />
+
+              <Route path="/reservations" element={<ReservationProfile/>}/>
+
 
               {/* Route for MenuPage */}
               <Route path="/menu" element={<MenuPage />} />
+
+              <Route path="/create-restaurant" element={<CreateRestaurant />} />
             </Routes>
           </div>
           <Footer />
