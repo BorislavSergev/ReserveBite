@@ -1,43 +1,34 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Dish2 from '../../assets/images/dish2.png';
-import Dish1 from '../../assets/images/dish1.png';
 import Dish3 from '../../assets/images/dish3.png';
 
 const Hero = () => {
   return (
-    <div className="relative w-full h-[70vh] bg-primary overflow-hidden">
-      {/* Background Images (Circular) */}
-      <motion.div
-        className="absolute top-7 sm:top-4 left-2 sm:left-10 w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden"
-        style={{
-          backgroundImage: `url(${Dish3})`,
-        }}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.8 }}
-        whileHover={{ scale: 1.1 }}
-      />
-      <motion.div
-        className="absolute top-1/6 sm:top-1/4 right-4 sm:right-6 w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden"
-        style={{
-          backgroundImage: `url(${Dish2})`,
-        }}
-        initial={{ x: 100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        whileHover={{ scale: 1.1 }}
-      />
-      <motion.div
-        className="absolute bottom-4 sm:bottom-8 left-6 sm:left-28 w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden"
-        style={{
-          backgroundImage: `url(${Dish1})`,
-        }}
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.6 }}
-        whileHover={{ scale: 1.1 }}
-      />
+    <div className="relative w-full h-[60vh] bg-primary overflow-hidden">
+      {/* Background Images (Inline Centered) */}
+      <div className="absolute inset-0 flex justify-between mx-2 items-center space-x-8">
+        <motion.div
+          className="w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden mr-4"
+          style={{
+            backgroundImage: `url(${Dish3})`,
+          }}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.8 }}
+          whileHover={{ scale: 1.1 }}
+        />
+        <motion.div
+          className="w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden ml-4"
+          style={{
+            backgroundImage: `url(${Dish2})`,
+          }}
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          whileHover={{ scale: 1.1 }}
+        />
+      </div>
 
       {/* Central Content */}
       <div className="container mx-auto flex flex-col items-center justify-center h-full relative z-10 px-4">
@@ -73,7 +64,6 @@ const Hero = () => {
           </button>
         </motion.div>
       </div>
-
     </div>
   );
 };

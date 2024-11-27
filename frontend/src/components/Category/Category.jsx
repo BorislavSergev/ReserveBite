@@ -16,7 +16,7 @@ const Category = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="container bg-primary mx-auto py-16 px-4">
+        <div className="container bg-primary  px-4">
             {/* Section Header */}
             <div className="relative text-center mb-10">
                 <div className="relative flex items-center justify-center">
