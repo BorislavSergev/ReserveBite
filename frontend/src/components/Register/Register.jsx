@@ -37,7 +37,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        'https://localhost:7297/api/users/register',
+        'https://api.swiftabook.com/api/users/register',
         formData
       );
       setSuccessMessage(response.data.message);

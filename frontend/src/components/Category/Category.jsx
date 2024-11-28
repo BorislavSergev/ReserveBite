@@ -12,7 +12,7 @@ const Category = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('https://localhost:7297/api/cuisines/get-cuisines');
+                const response = await axios.get('https://api.swiftabook.com/api/cuisines/get-cuisines');
                 setCategories(response.data);
             } catch (err) {
                 console.error("API Error:", err);
@@ -21,7 +21,7 @@ const Category = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchCategories();
     }, []);
 

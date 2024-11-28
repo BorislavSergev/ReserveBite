@@ -21,7 +21,7 @@ const CategoryPage = () => {
     // Function to fetch all restaurants based on category
     const fetchRestaurants = async () => {
         try {
-            const response = await axios.get(`https://localhost:7297/api/restaurants/get-restaurants-by-cuisine/${categoryName}`);
+            const response = await axios.get(`https://api.swiftabook.com/api/restaurants/get-restaurants-by-cuisine/${categoryName}`);
             setRestaurants(response.data); // Store all fetched restaurants
             setFilteredRestaurants(response.data); // Initially, no filter is applied
         } catch (err) {

@@ -16,7 +16,7 @@ const RestaurantDetailPage = () => {
         console.log("Restaurant ID:", id);
         const fetchRestaurantDetails = async () => {
             try {
-                const response = await axios.get(`https://localhost:7297/api/restaurants/get-restaurant/${id}`);
+                const response = await axios.get(`https://api.swiftabook.com/api/restaurants/get-restaurant/${id}`);
                 setRestaurant(response.data);
             } catch (error) {
                 console.error("Error fetching restaurant details:", error);

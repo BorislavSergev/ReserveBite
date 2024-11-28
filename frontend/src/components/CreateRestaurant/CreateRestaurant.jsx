@@ -18,7 +18,7 @@ const CreateRestaurant = () => {
   useEffect(() => {
     // Fetch cuisines from the API to populate the cuisine dropdown
     const fetchCuisines = async () => {
-      const response = await fetch('https://localhost:7297/api/cuisines/get-cuisines'); // Adjust this to your API
+      const response = await fetch('https://api.swiftabook.com/api/cuisines/get-cuisines'); // Adjust this to your API
       const data = await response.json();
       console.log("Cuisines fetched: ", data); // Debugging log
       setCuisines(data);
@@ -45,7 +45,7 @@ const CreateRestaurant = () => {
     }
 
     try {
-      const response = await fetch('https://localhost:7297/api/restaurants/create-restaurant', {
+      const response = await fetch('https://api.swiftabook.com/api/restaurants/create-restaurant', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

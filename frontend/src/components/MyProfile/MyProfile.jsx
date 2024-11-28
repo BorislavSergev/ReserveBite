@@ -13,7 +13,7 @@ const MyProfile = () => {
     if (!token) {
       navigate('/login');  // Redirect to login if the user is not authenticated
     } else {
-      fetch('https://localhost:7297/api/users/me', {
+      fetch('https://api.swiftabook.com/api/users/me', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ const MyProfile = () => {
     event.preventDefault();
 
     const token = localStorage.getItem('token');
-    fetch('https://localhost:7297/api/users/update', {
+    fetch('https://api.swiftabook.com/api/users/update', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

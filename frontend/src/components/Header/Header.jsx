@@ -27,7 +27,7 @@ const Header = () => {
       setUser({ firstName, lastName });
 
       // Verify token with the server (optional)
-      const response = await fetch('https://localhost:7297/api/users/checkauth', {
+      const response = await fetch('https://api.swiftabook.com/api/users/checkauth', {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
