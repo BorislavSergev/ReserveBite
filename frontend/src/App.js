@@ -16,6 +16,7 @@ import Profile from './components/Profile/Profile';
 import ReservationProfile from './components/ReservationProfile/ReservationProfile'
 import CreateRestaurant from './components/CreateRestaurant/CreateRestaurant'; // Import the CreateRestaurant component
 
+
 const App = () => {
   return (
     <div className="app-container">
@@ -33,15 +34,13 @@ const App = () => {
               <Route path="/categories/:categoryName" element={<CategoryPage />} />
 
               {/* Route for Restaurant Detail */}
-              <Route path="/restaurant/:restaurantId" element={<RestaurantDetailPage />} />
+              <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
               
               {/* Route for ReservationPage */}
               <Route path="/reservation" element={<ReservationPage />} />
               <Route path="/profile" element={<Profile/>} />
 
               <Route path="/reservations" element={<ReservationProfile/>}/>
-
-
               {/* Route for MenuPage */}
               <Route path="/menu" element={<MenuPage />} />
 

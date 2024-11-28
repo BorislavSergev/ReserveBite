@@ -1,37 +1,30 @@
-import React, { useState } from 'react';
-import { FaStar, FaInfoCircle, FaTimes } from 'react-icons/fa'; // Added FaTimes for the close button
+import React, { useState, useEffect } from 'react';
+import { FaStar, FaInfoCircle, FaTimes } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { useNavigate, useParams } from 'react-router-dom'; // Import useParams hook to get the ID
+import axios from 'axios';
 
 const RestaurantDetailPage = () => {
-    const restaurant = {
-        name: "Restaurant 1",
-        description: "Delicious food with a variety of options for everyone. A place for fine dining and casual hangouts.",
-        rating: 4.5,
-        categories: ["Special Offers", "Popular", "Vegan", "Vegetarian"],
-        menu: {
-            "Special Offers": [
-                { name: "Bruschetta", price: "$5", image: "https://via.placeholder.com/100", description: "A delicious starter with tomatoes and basil.", ingredients: ["Tomatoes", "Basil", "Bread", "Olive Oil"] },
-                { name: "Tiramisu", price: "$6", image: "https://via.placeholder.com/100", description: "A classic Italian dessert made with coffee.", ingredients: ["Mascarpone", "Coffee", "Ladyfingers", "Cocoa Powder"] }
-            ],
-            Popular: [
-                { name: "Pasta Alfredo", price: "$12", image: "https://via.placeholder.com/100", description: "Creamy pasta with Alfredo sauce.", ingredients: ["Pasta", "Cream", "Butter", "Parmesan Cheese"] },
-                { name: "Margherita Pizza", price: "$10", image: "https://via.placeholder.com/100", description: "Tomato, mozzarella, and basil pizza.", ingredients: ["Tomato", "Mozzarella", "Basil", "Olive Oil"] }
-            ],
-            Vegan: [
-                { name: "Vegan Burger", price: "$8", image: "https://via.placeholder.com/100", description: "Plant-based patty with lettuce and tomato.", ingredients: ["Vegan Patty", "Lettuce", "Tomato", "Vegan Bun"] },
-                { name: "Vegan Salad", price: "$7", image: "https://via.placeholder.com/100", description: "Mixed greens with a tangy vinaigrette.", ingredients: ["Lettuce", "Spinach", "Cucumber", "Vinaigrette"] }
-            ],
-            Vegetarian: [
-                { name: "Vegetarian Lasagna", price: "$10", image: "https://via.placeholder.com/100", description: "Layers of pasta with vegetables and cheese.", ingredients: ["Pasta", "Spinach", "Ricotta", "Tomato Sauce"] },
-                { name: "Cheese Pizza", price: "$9", image: "https://via.placeholder.com/100", description: "Classic pizza with mozzarella cheese.", ingredients: ["Mozzarella", "Tomato Sauce", "Dough"] }
-            ]
-        }
-    };
-
+    const { id } = useParams(); // Access restaurant ID from the URL parameter
+    const [restaurant, setRestaurant] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("Special Offers");
     const [selectedMeal, setSelectedMeal] = useState(null); // Track selected meal for dialog
     const navigate = useNavigate(); // Hook for navigation
+
+    // Fetch the restaurant details using the ID from the URL
+    useEffect(() => {
+        console.log("Restaurant ID:", id);
+        const fetchRestaurantDetails = async () => {
+            try {
+                const response = await axios.get(`https://localhost:7297/api/restaurants/get-restaurant/${id}`);
+                setRestaurant(response.data);
+            } catch (error) {
+                console.error("Error fetching restaurant details:", error);
+            }
+        };
+    
+        fetchRestaurantDetails();
+    }, [id]);
 
     // Handle category selection
     const handleCategorySelect = (category) => {
@@ -50,12 +43,25 @@ const RestaurantDetailPage = () => {
         setSelectedMeal(null); // Close the dialog
     };
 
+    // Return loading state if the restaurant data hasn't been fetched yet
+    if (!restaurant) {
+        return (
+            <div className="loading-state">
+                Loading restaurant details...
+            </div>
+        );
+    }
+
+    // Check if menu categories are available for the restaurant
+    const categories = restaurant.menu ? Object.keys(restaurant.menu) : [];
+    const menuItems = restaurant.menu && restaurant.menu[selectedCategory] ? restaurant.menu[selectedCategory] : [];
+
     return (
         <div className="container justify-center mx-auto py-8 px-4 bg-primary relative">
             {/* Restaurant Banner */}
             <div className="relative">
                 <img
-                    src="https://cdn.printnetwork.com/production/assets/themes/5966561450122033bd4456f8/imageLocker/5f206dc35d4bff1ada62fb4c/blog/blog-description/1647973541988_restaurant-banner.png"
+                    src={restaurant.imageUrl || "https://cdn.printnetwork.com/production/assets/themes/5966561450122033bd4456f8/imageLocker/5f206dc35d4bff1ada62fb4c/blog/blog-description/1647973541988_restaurant-banner.png"}
                     alt="Restaurant Banner"
                     className="w-full h-64 object-cover rounded-lg"
                 />
@@ -80,7 +86,7 @@ const RestaurantDetailPage = () => {
 
             {/* Category Chips */}
             <div className="flex flex-wrap mt-2">
-                {restaurant.categories.map((category, index) => (
+                {categories.map((category, index) => (
                     <span
                         key={index}
                         className={`cursor-pointer rounded-full py-1 px-4 text-sm mr-3 mb-3 text-center text-white  ${selectedCategory === category ? "bg-secondary font-semibold" : "bg-acent text-white"}`}
@@ -98,24 +104,28 @@ const RestaurantDetailPage = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
             >
-                {restaurant.menu[selectedCategory].map((item, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow-xl p-4">
-                        <img src={item.image} alt={item.name} className="w-full h-32 object-cover rounded-lg mb-4" />
-                        <h3 className="text-lg font-semibold">{item.name}</h3>
-                        <p className="text-sm text-txtSecondary line-clamp-2">{item.description}</p>
-                        
-                        {/* Move Info Button below the description */}
-                        <div className="mt-4 flex justify-between items-center">
-                            <span className="text-sm text-accent font-semibold">{item.price}</span>
-                            <button
-                                onClick={() => openMealInfo(item)}
-                                className="text-blue-500 hover:text-blue-700"
-                            >
-                                <FaInfoCircle size={20} />
-                            </button>
+                {menuItems.length > 0 ? (
+                    menuItems.map((item, index) => (
+                        <div key={index} className="bg-white rounded-lg shadow-xl p-4">
+                            <img src={item.image} alt={item.name} className="w-full h-32 object-cover rounded-lg mb-4" />
+                            <h3 className="text-lg font-semibold">{item.name}</h3>
+                            <p className="text-sm text-txtSecondary line-clamp-2">{item.description}</p>
+                            
+                            {/* Move Info Button below the description */}
+                            <div className="mt-4 flex justify-between items-center">
+                                <span className="text-sm text-accent font-semibold">{item.price}</span>
+                                <button
+                                    onClick={() => openMealInfo(item)}
+                                    className="text-blue-500 hover:text-blue-700"
+                                >
+                                    <FaInfoCircle size={20} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <p>No items available in this category.</p>
+                )}
             </motion.div>
 
             {/* Reserve Now Button */}
@@ -142,7 +152,7 @@ const RestaurantDetailPage = () => {
                         <img src={selectedMeal.image} alt={selectedMeal.name} className="w-full h-48 object-cover rounded-lg mb-4" />
                         <h4 className="text-lg font-semibold mb-2">Ingredients</h4>
                         <ul className="list-disc pl-5">
-                            {selectedMeal.ingredients.map((ingredient, index) => (
+                            {selectedMeal.ingredients?.map((ingredient, index) => (
                                 <li key={index}>{ingredient}</li>
                             ))}
                         </ul>

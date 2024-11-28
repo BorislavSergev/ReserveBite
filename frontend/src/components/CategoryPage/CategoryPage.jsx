@@ -190,7 +190,7 @@ const CategoryPage = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.1 * index, duration: 0.5 }}
                         >
-                            <Link to={`/restaurant/restaurant-${restaurant.id}`} className="block">
+                            <Link to={`/restaurant/${restaurant.id}`} className="block">
                                 <img
                                     src={restaurant.imageUrl}
                                     alt={restaurant.name}
