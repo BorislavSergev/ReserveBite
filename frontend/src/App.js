@@ -15,6 +15,9 @@ import MenuPage from './components/MenuPage/MenuPage'; // Import MenuPage
 import Profile from './components/Profile/Profile';
 import ReservationProfile from './components/ReservationProfile/ReservationProfile'
 import CreateRestaurant from './components/CreateRestaurant/CreateRestaurant'; // Import the CreateRestaurant component
+import SelectRestaurant from './components/selectRestaurant/selectRestaurant';
+import AdminHeader from './components/Dashboard/AdminHeader/AdminHeader';
+import ErrorPage from './components/ErrorPage/ErrorPage';
 
 
 const App = () => {
@@ -28,23 +31,27 @@ const App = () => {
               <Route path="/" element={<><Hero /><Category /><About /></>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/test" element={<RestaurantDetailPage />} />
 
               {/* Route for CategoryPage */}
               <Route path="/categories/:categoryName" element={<CategoryPage />} />
 
+    
               {/* Route for Restaurant Detail */}
               <Route path="/restaurant/:id" element={<RestaurantDetailPage />} />
               
               {/* Route for ReservationPage */}
-              <Route path="/reservation" element={<ReservationPage />} />
+              <Route path="/restaurants/:id/reservation" element={<ReservationPage />} />
               <Route path="/profile" element={<Profile/>} />
 
               <Route path="/reservations" element={<ReservationProfile/>}/>
               {/* Route for MenuPage */}
               <Route path="/menu" element={<MenuPage />} />
 
+              <Route path="/business/select-restaurant" element={<><AdminHeader/> <SelectRestaurant/> </>}/>
+
               <Route path="/create-restaurant" element={<CreateRestaurant />} />
+
+              <Route path="*" element={<ErrorPage/>}/>
             </Routes>
           </div>
           <Footer />

@@ -1,67 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { db } from '../../firebase'; // Import Firebase Firestore instance
+import { collection, getDocs } from 'firebase/firestore';
 import Dish2 from '../../assets/images/dish2.png';
 import Dish3 from '../../assets/images/dish3.png';
 
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [searching, setSearching] = useState(false);
 
+  // Fetch restaurants from Firestore
   const fetchRestaurants = async () => {
-    if (searchQuery.trim() === '') {
-      return; // Don't fetch if the search query is empty
-    }
-
     try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(
-        `https://api.swiftabook.com/api/restaurants/get-restaurants?searchQuery=${searchQuery}`
+      const restaurantsCollection = collection(db, 'restaurants');
+      const snapshot = await getDocs(restaurantsCollection);
+      const allRestaurants = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return allRestaurants;
+    } catch (error) {
+      console.error('Error fetching restaurants:', error);
+      return [];
+    }
+  };
+
+  // Update results dynamically based on search query
+  useEffect(() => {
+    const filterRestaurants = async () => {
+      setSearching(true);
+
+      const allRestaurants = await fetchRestaurants();
+      const filteredResults = allRestaurants.filter((restaurant) =>
+        restaurant.name?.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch restaurants');
-      }
+      setRestaurants(filteredResults);
+      setSearching(false);
+    };
 
-      const data = await response.json();
-      setRestaurants(data);
-    } catch (err) {
-      setError('Error fetching restaurants: ' + err.message);
-    } finally {
-      setLoading(false);
+    if (searchQuery.trim()) {
+      filterRestaurants();
+    } else {
+      setRestaurants([]);
     }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleSearchClick = () => {
-    fetchRestaurants();
-  };
+  }, [searchQuery]);
 
   return (
-    <div className="relative w-full h-[60vh] bg-primary overflow-hidden">
-      {/* Background Images (Inline Centered) */}
+    <div className="relative w-full h-auto bg-primary overflow-hidden z-10">
+      {/* Background Images */}
       <div className="absolute inset-0 flex justify-between mx-2 items-center space-x-8">
         <motion.div
-          className="w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden mr-4"
-          style={{
-            backgroundImage: `url(${Dish3})`,
-          }}
+          className="hidden sm:block w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden mr-4"
+          style={{ backgroundImage: `url(${Dish3})` }}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.8 }}
           whileHover={{ scale: 1.1 }}
         />
         <motion.div
-          className="w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden ml-4"
-          style={{
-            backgroundImage: `url(${Dish2})`,
-          }}
+          className="hidden sm:block w-24 sm:w-48 h-24 sm:h-48 rounded-full bg-cover bg-no-repeat overflow-hidden ml-4"
+          style={{ backgroundImage: `url(${Dish2})` }}
           initial={{ x: 100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
@@ -70,7 +70,7 @@ const Hero = () => {
       </div>
 
       {/* Central Content */}
-      <div className="container mx-auto flex flex-col items-center justify-center h-full relative z-10 px-4">
+      <div className="container mx-auto flex flex-col items-center justify-center py-8 px-4">
         <motion.h1
           className="text-lg sm:text-2xl md:text-4xl lg:text-6xl px-4 sm:px-8 font-bold text-center text-txtPrimary mb-4"
           initial={{ opacity: 0, y: -50 }}
@@ -90,7 +90,7 @@ const Hero = () => {
 
         {/* Search Bar */}
         <motion.div
-          className="bg-secondary rounded-full flex items-center w-full sm:w-3/4 lg:w-2/6"
+          className="bg-secondary rounded-full flex items-center w-full sm:w-3/4 lg:w-2/6 relative z-20"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
@@ -98,55 +98,38 @@ const Hero = () => {
           <input
             type="text"
             placeholder="Търсене..."
-            value={searchQuery}
-            onChange={handleSearchChange}
             className="bg-secondary text-white placeholder-white focus:outline-none rounded-l-full py-3 px-4 w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)} // Update on every change
           />
           <button
-            onClick={handleSearchClick}
-            className="bg-accent text-primary font-semibold py-3 px-6 rounded-r-full h-full"
+            className="bg-acent text-primary font-semibold py-3 px-6 rounded-r-full h-full"
           >
             Търси
           </button>
         </motion.div>
 
-        {/* Displaying loading or error messages */}
-        {loading && <p className="text-white mt-4">Зареждане...</p>}
-        {error && <p className="text-red-500 mt-4">{error}</p>}
-
-        {/* Scrollable Restaurant List */}
-        <div className="mt-6 w-full max-h-[300px] overflow-y-auto space-y-4">
-          {restaurants.length > 0 ? (
-            <ul className="space-y-4">
-              {restaurants.map((restaurant) => (
-                <Link
-                  key={restaurant.id}
-                  to={`/restaurant/${restaurant.id}`} // Use the Link component for navigation
-                  className="block"
-                >
-                  <motion.li
-                    className="bg-white shadow-md rounded-lg p-4 flex items-center space-x-4 cursor-pointer"
+        {/* Restaurant Results */}
+        {searchQuery.trim() && (
+          <div className="absolute top-20 w-full sm:w-3/4 lg:w-2/6 mx-auto z-30">
+            {searching && <p className="text-white text-center">Търсене...</p>}
+            {restaurants.length > 0 && (
+              <ul className="bg-white rounded-md shadow-md">
+                {restaurants.map((restaurant) => (
+                  <li
+                    key={restaurant.id}
+                    className="border-b last:border-none p-4 text-gray-800 text-center"
                   >
-                    <img
-                      src={restaurant.imageUrl}
-                      alt={restaurant.name}
-                      className="w-16 h-16 object-cover rounded-full"
-                    />
-                    <div>
-                      <h3 className="font-semibold text-lg">{restaurant.name}</h3>
-                      <p>{restaurant.description}</p>
-                      <p className="text-sm text-gray-500">Рейтинг: {restaurant.rating}</p>
-                      <p className="text-sm text-gray-500">{restaurant.address}</p>
-                      <p className="text-sm text-gray-500">{restaurant.phone}</p>
-                    </div>
-                  </motion.li>
-                </Link>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-white mt-4">Няма намерени ресторанти</p>
-          )}
-        </div>
+                    {restaurant.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {!searching && searchQuery.trim() && restaurants.length === 0 && (
+              <p className="text-white text-center mt-4">Няма намерени резултати.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

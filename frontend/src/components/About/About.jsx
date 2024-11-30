@@ -6,7 +6,7 @@ import { FaClock, FaUsers, FaCogs } from 'react-icons/fa';
 const About = () => {
   return (
     <section>
-      <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8 bg-primary w-full">
+      <div className="mx-auto mt-12 max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8 bg-primary w-full">
         {/* About ReserveBite */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-2 md:gap-8">
           <div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase'; // Adjust the import path based on your structure
 import registerImage from '../../assets/images/register.png'; // Replace with your image path
 
 const Login = () => {
@@ -22,19 +23,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://api.swiftabook.com/api/users/login', formData);
-      const { token } = response.data;
-      setSuccessMessage('Login successful! Redirecting...');
-      
-      // Save the token (localStorage/sessionStorage or context)
-      localStorage.setItem('token', token);
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
 
-      // Redirect to dashboard or home page after login
+      setSuccessMessage('Login successful! Redirecting...');
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = '/'; // Adjust as needed
       }, 2000);
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'An error occurred.');
+      setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }

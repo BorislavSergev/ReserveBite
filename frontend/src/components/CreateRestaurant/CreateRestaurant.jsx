@@ -18,12 +18,23 @@ const CreateRestaurant = () => {
   useEffect(() => {
     // Fetch cuisines from the API to populate the cuisine dropdown
     const fetchCuisines = async () => {
-      const response = await fetch('https://api.swiftabook.com/api/cuisines/get-cuisines'); // Adjust this to your API
-      const data = await response.json();
-      console.log("Cuisines fetched: ", data); // Debugging log
-      setCuisines(data);
+      try {
+        const response = await fetch('https://api.swiftabook.com/api/cuisines/get-cuisines'); // Adjust this to your API
+        const data = await response.json();
+        console.log("Cuisines fetched: ", data); // Debugging log
+  
+        if (data && Array.isArray(data.$values)) {
+          setCuisines(data.$values); // Use the $values property which contains the array of cuisines
+        } else {
+          setCuisines([]); // Set an empty array if the response is not in the expected format
+          setMessage('Invalid data received for cuisines.');
+        }
+      } catch (error) {
+        console.error("Error fetching cuisines:", error);
+        setMessage('Error fetching cuisines.');
+      }
     };
-
+  
     fetchCuisines();
   }, []);
 
@@ -112,21 +123,25 @@ const CreateRestaurant = () => {
           <label className="block text-sm font-medium text-gray-700" htmlFor="cuisineId">
             Cuisine
           </label>
-          <select
-            id="cuisineId"
-            name="cuisineId"
-            value={formData.cuisineId}
-            onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            required
-          >
-            <option value="">Select Cuisine</option>
-            {cuisines.map((cuisine) => (
-              <option key={cuisine.id} value={cuisine.id}>
-                {cuisine.name}
-              </option>
-            ))}
-          </select>
+          {cuisines.length === 0 ? (
+            <p>Loading cuisines...</p> // Show loading message while cuisines are being fetched
+          ) : (
+            <select
+              id="cuisineId"
+              name="cuisineId"
+              value={formData.cuisineId}
+              onChange={handleInputChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              required
+            >
+              <option value="">Select Cuisine</option>
+              {cuisines.map((cuisine) => (
+                <option key={cuisine.id} value={cuisine.id}>
+                  {cuisine.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="mb-4">

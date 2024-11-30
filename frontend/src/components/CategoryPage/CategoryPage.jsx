@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaFilter, FaStar } from 'react-icons/fa'; // Add Star icon for Rating
-import axios from 'axios';
+import { db } from '../../firebase'; // Firebase config
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const CategoryPage = () => {
     const { categoryName } = useParams();
@@ -18,12 +19,37 @@ const CategoryPage = () => {
         setIsFilterOpen(!isFilterOpen);
     };
 
-    // Function to fetch all restaurants based on category
+    // Function to fetch all restaurants based on category from Firebase Firestore with dynamic filters
     const fetchRestaurants = async () => {
         try {
-            const response = await axios.get(`https://api.swiftabook.com/api/restaurants/get-restaurants-by-cuisine/${categoryName}`);
-            setRestaurants(response.data); // Store all fetched restaurants
-            setFilteredRestaurants(response.data); // Initially, no filter is applied
+            let q = query(collection(db, 'restaurants'));
+
+            // Base query by category name
+            q = query(q, where('category', '==', categoryName));
+
+            // Filter by rating if selected
+            if (selectedRating) {
+                q = query(q, where('rating', '==', parseInt(selectedRating)));
+            }
+
+            // Fetch restaurants from Firestore
+            const querySnapshot = await getDocs(q);
+            const fetchedRestaurants = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Apply additional mood category filtering after fetching
+            let filtered = [...fetchedRestaurants];
+
+            if (selectedCategories.length > 0) {
+                filtered = filtered.filter(restaurant =>
+                    selectedCategories.some(category => restaurant.categories.includes(category))
+                );
+            }
+
+            setRestaurants(fetchedRestaurants); // Store all fetched restaurants
+            setFilteredRestaurants(filtered); // Apply initial filter if available
         } catch (err) {
             console.error("Error fetching restaurants:", err);
             setError("Failed to load restaurants. Please try again.");
@@ -32,34 +58,11 @@ const CategoryPage = () => {
         }
     };
 
-    // Filter the restaurants based on selected filters
-    const applyFilters = () => {
-        let filtered = [...restaurants]; // Copy the original list of restaurants
-
-        // Filter by Category (Mood)
-        if (selectedCategories.length > 0) {
-            filtered = filtered.filter(restaurant =>
-                selectedCategories.some(category => restaurant.categories.includes(category))
-            );
-        }
-
-        // Filter by Rating
-        if (selectedRating) {
-            filtered = filtered.filter(restaurant => restaurant.rating === parseInt(selectedRating));
-        }
-
-        setFilteredRestaurants(filtered); // Set the filtered restaurants
-    };
-
     // Fetch restaurants when the component is loaded or filters change
     useEffect(() => {
         fetchRestaurants();
         window.scrollTo(0, 0); // Scroll to top on page load
-    }, [categoryName]);
-
-    useEffect(() => {
-        applyFilters(); // Apply filters every time a filter changes
-    }, [selectedRating, selectedCategories]); // Re-run filter logic when filters change
+    }, [categoryName, selectedRating, selectedCategories]); // Re-fetch on filter change
 
     if (loading) {
         return (
@@ -192,7 +195,7 @@ const CategoryPage = () => {
                         >
                             <Link to={`/restaurant/${restaurant.id}`} className="block">
                                 <img
-                                    src={restaurant.imageUrl}
+                                    src={restaurant.banner}
                                     alt={restaurant.name}
                                     className="w-full h-40 object-cover rounded-lg mb-4"
                                 />

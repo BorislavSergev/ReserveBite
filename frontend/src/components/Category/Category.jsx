@@ -1,45 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase'; // Adjust the path based on your project structure
 
 const Category = () => {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [categories, setCategories] = useState([]); // State to hold categories data
+    const [loading, setLoading] = useState(true); // Loading state
+    const [error, setError] = useState(null); // Error state
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get('https://api.swiftabook.com/api/cuisines/get-cuisines');
-                setCategories(response.data);
-            } catch (err) {
-                console.error("API Error:", err);
-                setError('Failed to load categories. Please try again.');
-            } finally {
-                setLoading(false);
-            }
-        };
+    // Fetch categories from Firestore
+    const fetchCategories = async () => {
+        try {
+            const categoriesCollection = collection(db, 'categories');
+            const querySnapshot = await getDocs(categoriesCollection);
+            const categoriesData = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setCategories(categoriesData); // Set categories data
+            setLoading(false);
+        } catch (err) {
+            console.error("Error fetching categories:", err);
+            setError("Failed to load categories.");
+            setLoading(false);
+        }
+    };
 
+    // Fetch categories on component mount
+    useEffect(() => {
         fetchCategories();
     }, []);
 
+    // Handle loading state
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <motion.div
-                    className="text-2xl font-bold text-gray-500"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    Loading categories...
-                </motion.div>
+                <p className="text-gray-500 text-lg">Loading...</p>
             </div>
         );
     }
 
+    // Handle error state
     if (error) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -49,7 +52,7 @@ const Category = () => {
     }
 
     return (
-        <div className="container bg-primary px-4">
+        <div className="container bg-primary px-4 py-8">
             {/* Section Header */}
             <div className="relative text-center mb-10">
                 <div className="relative flex items-center justify-center">
@@ -86,7 +89,7 @@ const Category = () => {
                         whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
                         className="relative rounded-lg overflow-hidden h-80 cursor-pointer"
                         style={{
-                            backgroundImage: `url(${category.imgUrl})`,
+                            backgroundImage: `url(${category.image})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}

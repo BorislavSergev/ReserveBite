@@ -1,27 +1,31 @@
+// src/components/Register/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import axios from 'axios';
 import registerImage from '../../assets/images/register.png'; // Replace with your image path
+import { auth, db } from '../../firebase'; // Adjust the path as necessary
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phone_number: '',
   });
 
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -30,27 +34,51 @@ const Register = () => {
     setErrorMessage('');
     setSuccessMessage('');
 
+    // Basic password confirmation validation
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage('Passwords do not match');
       return;
     }
 
     try {
-      const response = await axios.post(
-        'https://api.swiftabook.com/api/users/register',
-        formData
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
       );
-      setSuccessMessage(response.data.message);
+
+      const user = userCredential.user;
+
+      // Update user profile with first and last name
+      await updateProfile(user, {
+        displayName: `${formData.first_name} ${formData.last_name}`,
+      });
+
+      // Save additional user info to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        role: "user",
+        created_at: new Date(),
+      });
+
+      setSuccessMessage('Registration successful! Redirecting to login...');
       setFormData({
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        phone_number: '',
       });
-      setTimeout(() => navigate('/login'), 2000); // Redirect to login
+
+      setTimeout(() => navigate('/login'), 2000); // Redirect to login after success
     } catch (error) {
-      setErrorMessage(error.response?.data || 'An error occurred.');
+      console.error('Error registering user:', error);
+      setErrorMessage(error.message || 'An error occurred during registration.');
     }
   };
 
@@ -94,8 +122,8 @@ const Register = () => {
               </label>
               <input
                 type="text"
-                name="firstName"
-                value={formData.firstName}
+                name="first_name"
+                value={formData.first_name}
                 onChange={handleChange}
                 placeholder="Въведи първо име"
                 className="w-full px-3 py-2 border-2 border-primary rounded-md focus:outline-none focus:border-secondary transition duration-300"
@@ -109,8 +137,8 @@ const Register = () => {
               </label>
               <input
                 type="text"
-                name="lastName"
-                value={formData.lastName}
+                name="last_name"
+                value={formData.last_name}
                 onChange={handleChange}
                 placeholder="Въведи фамилия"
                 className="w-full px-3 py-2 border-2 border-primary rounded-md focus:outline-none focus:border-secondary transition duration-300"
@@ -135,6 +163,21 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-txtPrimary mb-1">
+                Телефонен номер
+              </label>
+              <input
+                type="tel"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleChange}
+                placeholder="Въведи телефонен номер"
+                className="w-full px-3 py-2 border-2 border-primary rounded-md focus:outline-none focus:border-secondary transition duration-300"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-txtPrimary mb-1">
                 Парола
               </label>
               <input
@@ -150,14 +193,14 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-txtPrimary mb-1">
-                Потвърди паролата
+                Потвърди парола
               </label>
               <input
                 type="password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder="Confirm your password"
+                placeholder="Потвърди парола"
                 className="w-full px-3 py-2 border-2 border-primary rounded-md focus:outline-none focus:border-secondary transition duration-300"
                 required
               />
